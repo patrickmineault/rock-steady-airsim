@@ -1,6 +1,4 @@
-# In settings.json first activate computer vision mode:
-# https://github.com/Microsoft/AirSim/blob/master/docs/image_apis.md#computer-vision-mode
-
+# Command airsim
 import airsim
 
 import argparse
