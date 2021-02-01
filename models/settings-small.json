@@ -1,0 +1,31 @@
+{
+  "Note": "Put these settings in ~/Documents/AirSim/config.json",
+  "SeeDocsAt": "https://github.com/Microsoft/AirSim/blob/master/docs/settings.md",
+  "SettingsVersion": 1.2,
+  "SimMode": "ComputerVision",
+  "CameraDefaults": {
+    "CaptureSettings": [
+      {
+        "ImageType": 0,
+        "Width": 224,
+        "Height": 224,
+        "FOV_Degrees": 120,
+        "AutoExposureSpeed": 100
+      },
+      {
+        "ImageType": 1,
+        "Width": 224,
+        "Height": 224,
+        "FOV_Degrees": 120,
+        "AutoExposureSpeed": 100
+      },
+      {
+        "ImageType": 2,
+        "Width": 224,
+        "Height": 224,
+        "FOV_Degrees": 120,
+        "AutoExposureSpeed": 100
+      }
+    ]
+  }
+}
