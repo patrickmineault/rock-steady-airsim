@@ -62,18 +62,23 @@ def main(args):
                         mode="w", 
                         title="Flythroughs")
 
-    seq_len = 11
-    labels_table = h5file.create_table('/', 'labels', Particle, expectedrows=nseqs)
-    video_table = h5file.create_earray('/', 'videos', tables.UInt8Atom(), shape=(0, seq_len, 3, 112, 112), expectedrows=nseqs)
-    depth_table = h5file.create_earray('/', 'depth', tables.Float64Atom(), shape=(0, seq_len, 112, 112), expectedrows=nseqs)
-    
+    seq_len = 40
+    short_seq_len = 10
     nominal_fps = 30
 
+    labels_table = h5file.create_table('/', 'labels', Particle, expectedrows=nseqs)
+    video_table = h5file.create_earray('/', 'videos', tables.UInt8Atom(), shape=(0, seq_len, 3, 112, 112), expectedrows=nseqs)
+    short_video_table = h5file.create_earray('/', 'short_videos', tables.UInt8Atom(), shape=(0, short_seq_len, 3, 112, 112), expectedrows=nseqs)
+    depth_table = h5file.create_earray('/', 'depth', tables.Float64Atom(), shape=(0, 112, 112), expectedrows=nseqs)
+    
+
     for i in tqdm(range(nseqs)): # do few times
-        # For flat environments, start ground place localization not too high.
+
+        # For flat environments, start ground plane localization not too high.
         ground_from = 5
+
         # 3 meters/s -> jogging speed
-        MAX_SPEED = 3 * seq_len / nominal_fps
+        MAX_SPEED = 3
         collisions = True
         pause = 0
 
@@ -135,6 +140,7 @@ def main(args):
 
         pitch = np.random.uniform(-.25, .25) # Sometimes we look a little up, sometimes a little down
         roll = 0  # Should be 0 unless something is wrong
+
         # 360 degrees lookaround
         yaw = np.random.uniform(-np.pi, np.pi)
 
@@ -142,8 +148,8 @@ def main(args):
         heading_pitch = draw_von_mises(16)
 
         # Max ~90 degrees per second head rotation
-        rotation_yaw = 45 * np.pi / 180 * np.random.randn() * seq_len / nominal_fps
-        rotation_pitch = 15 * np.pi / 180 * np.random.randn() * seq_len / nominal_fps
+        rotation_yaw = 30 * np.pi / 180 * np.random.randn()
+        rotation_pitch = 10 * np.pi / 180 * np.random.randn()
         speed = MAX_SPEED * np.random.rand()
         
         # Figure out the height of the ground. Move the camera way far above
@@ -183,7 +189,11 @@ def main(args):
         
         booped = False
         for k in range(seq_len):
-            t = (k - (seq_len - 1) / 2) / seq_len
+            if booped:
+                continue
+
+            # In nominal seconds
+            t = (k - (seq_len - 1) / 2) / nominal_fps
             d = t * speed
 
             client.simSetVehiclePose(
@@ -202,7 +212,6 @@ def main(args):
             ])
 
             for j, response in enumerate(responses):
-                
                 if j == 0:
                     frames.append(
                         airsim.string_to_uint8_array(response.image_data_uint8).reshape(response.height, response.width, 3)[:, :, ::-1]
@@ -248,7 +257,17 @@ def main(args):
             V = V.reshape((1, ) + V.shape)
             video_table.append(V)
 
-            D = np.stack(depths, axis=0)
+            # Take a subset of the data.
+            mid_seq = range((seq_len - short_seq_len) // 2, 
+                            (seq_len + short_seq_len) // 2)
+
+            assert V.shape[1] == seq_len
+
+            short_video_table.append(V[:, mid_seq, :, :, :])
+
+            # Only record the mid-point z buffer
+            n = seq_len // 2
+            D = depths[n]
             D = D.reshape((1, ) + D.shape)
             depth_table.append(D)
 
@@ -263,6 +282,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate flythroughs of different environments.')
     parser.add_argument('--env', type=str, default='', help='Environment to use')
     parser.add_argument('--save_images', default=False, action='store_true', help='Save images')
-    parser.add_argument('--out_path', default='../data/raw/', help='Where to save images and hdf5')
+    parser.add_argument('--out_path', default='../../data/raw/', help='Where to save images and hdf5')
     args = parser.parse_args()
     main(args)

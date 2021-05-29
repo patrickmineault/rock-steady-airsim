@@ -16,6 +16,10 @@ Fire up one environment. This will create a local configuration folder in `~/Doc
 or `references/settings-small.json` into `~/Documents/AirSim/settings.json` depending on whether you want to generate high-res
 movies (for presentations) or low-res hdf5 files (for ML).
 
+# Setting up the environment
+
+Setting up the environment should be as easy as `pip install -r requirements.txt`. 
+
 # Generating sequences
 
 There is a makefile that you can use to start environments, but it only runs on Ubuntu, and 
