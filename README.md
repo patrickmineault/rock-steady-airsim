@@ -8,12 +8,9 @@ Motion selectivity via stabilization
 environments:
 
 * nh
-* mountains
 * trapcam
-* blocks (flaky)
 
-Fire up one environment. This will create a local configuration folder in `~/Documents/AirSim`. Copy either `references/settings-big.json`
-or `references/settings-small.json` into `~/Documents/AirSim/settings.json` depending on whether you want to generate high-res
+Fire up one environment. This will create a local configuration folder in `~/Documents/AirSim`. Copy either `references/settings-big.json` or `references/settings-small.json` into `~/Documents/AirSim/settings.json` depending on whether you want to generate high-res
 movies (for presentations) or low-res hdf5 files (for ML).
 
 # Setting up the environment
